@@ -52,6 +52,7 @@ namespace FacadeManager
                             double xC2 = cPnt2.X;
                             double yC2 = cPnt2.Y;
 
+                            // if x and y componenets are the same then add to dictionary
                             if (xC2 == xC && yC2 == yC)
                             {
                                 List<Massing> massingCopy = buildingList[counter];
