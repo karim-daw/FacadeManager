@@ -44,10 +44,10 @@ namespace FacadeManager
                 {
                     foreach (KeyValuePair<int, List<Massing>> entry in buildingList)
                     {
+                        SaveToLog("hello");
                         List<Massing> list = entry.Value.ToList();
-                        for (int j = 0; j < list.Count; j++)
+                        foreach (Massing massing in list)
                         {
-                            Massing massing = list[j];
                             Point3d cPnt2 = massing.CPnt;
                             double xC2 = cPnt2.X;
                             double yC2 = cPnt2.Y;
@@ -55,8 +55,9 @@ namespace FacadeManager
                             // if x and y componenets are the same then add to dictionary
                             if (xC2 == xC && yC2 == yC)
                             {
-                                List<Massing> massingCopy = buildingList[counter];
-                                massingCopy.Add(massing);
+                                //List<Massing> massingCopy = buildingList[counter];
+
+                                entry.Value.Add(massing);
                             }
                             else
                             {
@@ -73,6 +74,9 @@ namespace FacadeManager
 
             return buildingList;
         }
+
+
+
 
 
         public void CreateMassings(List<Brep> breps)
