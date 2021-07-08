@@ -34,87 +34,77 @@ import Grasshopper as gh
 # If you want to give the component a version number etc.
 ghenv.Component.Message = time.strftime("%d/%m/%Y") + "\n" + time.strftime("%H:%M:%S")
 
-
-
-def unCapBreps(breps, tol):
+def unCapBrep(brep, offsetDis, tol):
     
-
-    # Init empty list of unCappedBreps
-    unCappedBreps = []
-    bottomSurfaces = []
-    topSurfaces = []
+    verticalSurfaces = []
+    bottomSurface = Rhino.Geometry.Brep()
+    topSurface = Rhino.Geometry.Brep()
     
-    # Loop through breps
-    for i, brep in enumerate(breps):
+    # Get faces from breps
+    for i, face in enumerate(brep.Faces):
         
-        unCappedBrep = []
+        # Evaluate Surface
+        vec = face.NormalAt(0.5,0.5)
         
-        # Init empty breps
-        bottomSurface = Rhino.Geometry.Brep
-        topSurface = Rhino.Geometry.Brep
-
-        # Get faces from breps
-        for j, face in enumerate(brep.Faces):
+        # Check if normal is pointing up or down within tolerance
+        if vec.Z <= 0 + tol and vec.Z >= 0 - tol:
             
-            # Evaluate surface
-            vec = face.NormalAt(0.5, 0.5)
+            b = Rhino.Geometry.BrepFace.DuplicateFace(face,False)
             
-            # Check if normal is pointing up or down within tolerance
-            if vec.Z <= 0 + tol and vec.Z >= 0 - tol:
-                
-                # Append to empty list
-                unCappedBrep.append(face)
-                
-            elif vec.Z <= 0:
-                bottomSurface = face
-                
-                # Append bottom master list of Top Brep(s)
-                bottomSurfaces.append(bottomSurface)
-                
-            elif vec.Z >= 0:
-                topSurface = face
-                # Append top master list of Top Brep(s)
-                topSurfaces.append(topSurface)
+            # Append to vertical
+            verticalSurfaces.append(b)
         
-        # Append Uncapped Brep to master list of Uncapped Brep(s)
-        unCappedBreps.append(unCappedBrep)
+        elif vec.Z <= 0:
+            
+            # Append top master list of top brep
+            bottomSurface = face
+  
+        elif vec.Z >= 0:
 
-        
-    # return tuple with all the stuff you want
-    nestedGeo = [unCappedBreps,topSurfaces,bottomSurfaces]
+            # Append top master list of top brep
+            topSurface = face
     
-    return nestedGeo
+    # Join vertical surface
+    band = Rhino.Geometry.Brep.JoinBreps(verticalSurfaces,0.01)
+    
+    
+    if offsetDis != 0.0:
+        
+        # Unpack band
+        band = band[0]
+        
+        # offsetBand gives back 3 things, i just want the first one
+        offsetBand = Rhino.Geometry.Brep.CreateOffsetBrep(band,offsetDis,False,False,False,0.01)
+        offsetBand = offsetBand[0]
+    
+    else:
+        offsetBand = band
 
-# check if user input anything
+
+    return offsetBand, bottomSurface, topSurface
+
+
+# Run
+# Default inputs
+
+
 if not Tolerance:
     Tolerance = 0.01
+if not OffsetDistance:
+    OffsetDistance = 0.5
 
 if CappedBreps:
-    nestedGeo = unCapBreps(CappedBreps,Tolerance)
-    # Unnest objects
-    unCappedBreps = []
-    packedBreps = nestedGeo[0]
     
-    for brepFaces in packedBreps:
-        for brepFace in brepFaces:
-            
-            # Convert BrepFace into regulary brep for joining
-            #brep = Rhino.Geometry.BrepFace.DuplicateFace(brepFace,False)
-            
-            brep = Rhino.Geometry.Brep.CreateFromOffsetFace(brepFace,OffsetDistance,0.0,False,False)
-            
-            # Add to unCappedBreps
-            unCappedBreps.append(brep)
-            
-    TopSurface = nestedGeo[1]
-    BottomSurface = nestedGeo[2]
-    
-    if OffsetDistance > 0.0:
-        VerticalSurfaces = unCappedBreps
-    else:
-        VerticalSurfaces = Rhino.Geometry.Brep.JoinBreps(unCappedBreps,0.01)
-else:
     VerticalSurfaces = []
+    TopSurface = []
+    BottomSurface = []
 
-
+    for b in CappedBreps:
+        
+        vS, tS, bS = unCapBrep(b,-1*OffsetDistance,0.01)
+        
+        # save surfaces
+        VerticalSurfaces.append(*vS)
+        TopSurface.append(tS)
+        BottomSurface.append(bS)
 
