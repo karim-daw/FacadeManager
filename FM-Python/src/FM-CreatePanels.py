@@ -1,4 +1,17 @@
-
+"""
+This function takes in a list of breps, and outputs a meshface grid on all facade surfaces of the breps
+    Inputs:
+        Breps: Breps massing representation of design {list:Brep}
+        GridSize: Number indicated facade grid spacing {item:float}
+    Outputs:
+        MeshPanels: A nested list of mesh faces {list[list]:Mesh}
+        
+        Version: 260821001
+        Author: Karim Daw
+        License: Apache License 2.0
+        Version: 290621000
+    
+"""
 
 # Give your component a unique name and nickname (portrayed on the canvas).
 ghenv.Component.Name = "FM-CreatePanels"
