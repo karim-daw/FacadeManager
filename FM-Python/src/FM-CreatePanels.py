@@ -33,7 +33,6 @@ ghenv.Component.Message = time.strftime("%d/%m/%Y") + "\n" + time.strftime("%H:%
 # Your code here
 
 def GetMaxHeight(brep):
-    
     """get max height of brep"""
 
     # create bbox for brep
@@ -45,7 +44,6 @@ def GetMaxHeight(brep):
     return maxHeight
 
 def GetMinHeight(brep):
-    
     """get min height of brep"""
 
     # create bbox for brep
@@ -57,15 +55,12 @@ def GetMinHeight(brep):
     return minHeight
 
 def CreateFloorHeights(brep,gfHeight,fHeight):
-    
     """create series of numbers based on height of breps and inputed numbers"""
     
-    # compute max height
+    # compute max and min height
     maxHeight = round(GetMaxHeight(brep),2)
     minHeight = round(GetMinHeight(brep),2)
 
-    print(maxHeight)
-    
     # get rest count
     maxCount = int(math.floor(maxHeight/fHeight))
     
@@ -91,23 +86,19 @@ def ContourBrep(brep,fHeights):
     
     fCurves = []
     for ht in fHeights:
-        print(ht)
 
-        # getting minimum height
-        minHeight = brep.GetBoundingBox(True).Min.Z
-        maxHeight = GetMaxHeight(brep)
-        
+        # construct point from heights
         minPnt = rg.Point3d(0,0,ht)
-        print(minPnt)
         
         # create plane at Z = ht
         pln = rg.Plane(minPnt,rg.Vector3d(0,0,1))
         
         # get curves and join them
         crvs = rg.Intersect.Intersection.BrepPlane(brep,pln,0.01)[1]
+        
+        # NEED TO FIX THIS, have to write function that takes in varying sizes of inputs
         jCrvs = rg.Curve.JoinCurves(crvs)[0]
         print(jCrvs)
-
         fCurves.append(jCrvs)
 
     return fCurves
