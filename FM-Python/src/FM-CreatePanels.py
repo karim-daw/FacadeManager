@@ -44,12 +44,26 @@ def GetMaxHeight(brep):
     
     return maxHeight
 
+def GetMinHeight(brep):
+    
+    """get min height of brep"""
+
+    # create bbox for brep
+    bbox = brep.GetBoundingBox(True)
+    
+    # Get max z component
+    minHeight = bbox.Min.Z
+    
+    return minHeight
+
 def CreateFloorHeights(brep,gfHeight,fHeight):
     
     """create series of numbers based on height of breps and inputed numbers"""
     
     # compute max height
     maxHeight = round(GetMaxHeight(brep),2)
+    minHeight = round(GetMinHeight(brep),2)
+
     print(maxHeight)
     
     # get rest count
@@ -58,10 +72,10 @@ def CreateFloorHeights(brep,gfHeight,fHeight):
     # add first floor height to list
     floorHeights = []
     
-    counter = 0
+    counter = minHeight
     for i in range(0,maxCount):
         if i == 0:
-            floorHeights.append(0)
+            floorHeights.append(minHeight)
             counter += gfHeight
             counter = round(counter,1)
             
@@ -77,10 +91,14 @@ def ContourBrep(brep,fHeights):
     
     fCurves = []
     for ht in fHeights:
-        
+        print(ht)
+
         # getting minimum height
         minHeight = brep.GetBoundingBox(True).Min.Z
+        maxHeight = GetMaxHeight(brep)
+        
         minPnt = rg.Point3d(0,0,ht)
+        print(minPnt)
         
         # create plane at Z = ht
         pln = rg.Plane(minPnt,rg.Vector3d(0,0,1))
@@ -88,8 +106,10 @@ def ContourBrep(brep,fHeights):
         # get curves and join them
         crvs = rg.Intersect.Intersection.BrepPlane(brep,pln,0.01)[1]
         jCrvs = rg.Curve.JoinCurves(crvs)[0]
+        print(jCrvs)
 
         fCurves.append(jCrvs)
+
     return fCurves
 
 a = []
