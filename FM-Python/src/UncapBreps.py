@@ -34,7 +34,7 @@ import Grasshopper as gh
 # If you want to give the component a version number etc.
 ghenv.Component.Message = time.strftime("%d/%m/%Y") + "\n" + time.strftime("%H:%M:%S")
 
-def unCapBrep(brep, offsetDis, tol):
+def unCapBrep(brep,tol):
     
     verticalSurfaces = []
     bottomSurface = Rhino.Geometry.Brep()
@@ -42,56 +42,51 @@ def unCapBrep(brep, offsetDis, tol):
     
     # Get faces from breps
     for i, face in enumerate(brep.Faces):
-        
         # Evaluate Surface
         vec = face.NormalAt(0.5,0.5)
         
         # Check if normal is pointing up or down within tolerance
         if vec.Z <= 0 + tol and vec.Z >= 0 - tol:
-            
             b = Rhino.Geometry.BrepFace.DuplicateFace(face,False)
             
             # Append to vertical
             verticalSurfaces.append(b)
         
         elif vec.Z <= 0:
-            
             # Append top master list of top brep
             bottomSurface = face
   
         elif vec.Z >= 0:
-
             # Append top master list of top brep
             topSurface = face
     
+    
     # Join vertical surface
     band = Rhino.Geometry.Brep.JoinBreps(verticalSurfaces,0.01)
-    
+
+    joinedVerticalSurfaces = []
+    if len(band) == 1:
+        joinedVerticalSurfaces.append(band)
+    else:
+        for ban in band:
+            joinedVerticalSurfaces.append(ban)
+
+    return joinedVerticalSurfaces, bottomSurface, topSurface
+
+
+def OffsetJoinedBreps(brep,offsetDis):
     
     if offsetDis != 0.0:
-        
-        # Unpack band
-        band = band[0]
-        
-        # offsetBand gives back 3 things, i just want the first one
-        offsetBand = Rhino.Geometry.Brep.CreateOffsetBrep(band,offsetDis,False,False,False,0.01)
-        offsetBand = offsetBand[0]
-    
+        offsetBrep = Rhino.Geometry.Brep.CreateOffsetBrep(brep,offsetDis,False,True,False,0.01)
+        return offsetBrep[0][0]
     else:
-        offsetBand = band
-
-
-    return offsetBand, bottomSurface, topSurface
-
-
-# Run
-# Default inputs
+        return brep
 
 
 if not Tolerance:
     Tolerance = 0.01
 if not OffsetDistance:
-    OffsetDistance = 0.5
+    OffsetDistance = 0.0
 
 if CappedBreps:
     
@@ -101,10 +96,14 @@ if CappedBreps:
 
     for b in CappedBreps:
         
-        vS, tS, bS = unCapBrep(b,-1*OffsetDistance,0.01)
-        
+        vS, tS, bS = unCapBrep(b,Tolerance)
+        print(len(vS))
         # save surfaces
-        VerticalSurfaces.append(*vS)
+        if len(vS) == 1:
+            VerticalSurfaces.append(OffsetJoinedBreps(vS[0][0],-1*OffsetDistance))
+        else:
+            for v in vS:
+                VerticalSurfaces.append(OffsetJoinedBreps(v,-1*OffsetDistance))
         TopSurface.append(tS)
         BottomSurface.append(bS)
 

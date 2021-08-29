@@ -83,7 +83,7 @@ if Toggle and LocalFolder and Category:
     username=getpass.getuser()
 
     # get local GH componenet folder
-    localGhFolder = "/Users/karimdaw/Library/Application Support/McNeel/Rhinoceros/7.0/Plug-ins/Grasshopper (b45a29b1-4343-4035-989e-044e8580d9cf)/UserObjects"
+    localGhFolder = "C:\Users\karimd\AppData\Roaming\Grasshopper\UserObjects"
  
     Folders = [LocalFolder,localGhFolder]
     
