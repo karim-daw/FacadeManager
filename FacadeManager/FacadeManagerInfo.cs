@@ -1,7 +1,7 @@
-﻿using System;
-using System.Drawing;
-using Grasshopper;
+﻿using Grasshopper;
 using Grasshopper.Kernel;
+using System;
+using System.Drawing;
 
 namespace FacadeManager
 {
@@ -15,7 +15,7 @@ namespace FacadeManager
         //Return a short string describing the purpose of this GHA library.
         public override string Description => "";
 
-        public override Guid Id => new Guid("B82B6471-D9F2-430C-B5F2-D6084F56AD33");
+        public override Guid Id => new Guid("1F192467-494D-46B1-84FB-B8A01D4E8AD5");
 
         //Return a string identifying you or your company.
         public override string AuthorName => "";

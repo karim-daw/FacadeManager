@@ -6,7 +6,6 @@
     <Title>FacadeManager</Title>
     <Description>Description of FacadeManager</Description>
     <TargetExt>.gha</TargetExt>
-    <Configurations>Debug;GrasshopperDebug;Release</Configurations>
   </PropertyGroup>
   
   <ItemGroup>
@@ -19,17 +18,4 @@
     <StartAction>Program</StartAction>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <OutputPath>..\..\..\Library\Application Support\McNeel\Rhinoceros\7.0\Plug-ins\Grasshopper %28b45a29b1-4343-4035-989e-044e8580d9cf%29\Libraries</OutputPath>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'GrasshopperDebug|AnyCPU' ">
-    <DebugType></DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\..\Library\Application Support\McNeel\Rhinoceros\7.0\Plug-ins\Grasshopper %28b45a29b1-4343-4035-989e-044e8580d9cf%29\Libraries\net48\net48</OutputPath>
-    <DefineConstants>;GRASSHOPPER;NETFRAMEWORK;NET48;</DefineConstants>
-    <WarningLevel>4</WarningLevel>
-    <IntermediateOutputPath>obj\Grasshopper\net48\net48</IntermediateOutputPath>
-    <NoWarn></NoWarn>
-  </PropertyGroup>
 </Project>

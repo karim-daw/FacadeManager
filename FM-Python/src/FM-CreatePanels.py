@@ -1,18 +1,3 @@
-"""
-This function takes in a list of breps, and outputs a meshface grid on all facade surfaces of the breps
-    Inputs:
-        Breps: Breps massing representation of design {list:Brep}
-        GridSize: Number indicated facade grid spacing {item:float}
-    Outputs:
-        MeshPanels: A nested list of mesh faces {list[list]:Mesh}
-        
-        Version: 260821001
-        Author: Karim Daw
-        License: Apache License 2.0
-        Version: 290621000
-    
-"""
-
 # Give your component a unique name and nickname (portrayed on the canvas).
 ghenv.Component.Name = "FM-CreatePanels"
 ghenv.Component.NickName = "FM-CP"
@@ -97,11 +82,14 @@ def ContourBrep(brep,fHeights):
         crvs = rg.Intersect.Intersection.BrepPlane(brep,pln,0.01)[1]
         
         # NEED TO FIX THIS, have to write function that takes in varying sizes of inputs
-        jCrvs = rg.Curve.JoinCurves(crvs)[0]
-        print(jCrvs)
-        fCurves.append(jCrvs)
-
+        if crvs.Count == 1:
+            fCurves.append(rg.Curve.JoinCurves(crvs)[0])
+        else:
+            for crv in crvs:
+                fCurves.append(crv)
+        
     return fCurves
+
 
 a = []
 for brep in Breps:
