@@ -41,4 +41,4 @@ class Panel:
 
         self.message = "hello, i am a panel!"
 
-rs.sticky["Fm-Panel"] = Panel #"x" is the input for the component
+rs.sticky["Fm-Panel"] = Panel 
