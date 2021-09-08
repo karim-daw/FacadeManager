@@ -17,86 +17,95 @@ ghenv.Component.Message = time.strftime("%d/%m/%Y") + "\n" + time.strftime("%H:%
 
 # Your code here
 
-def GetMaxHeight(brep):
-    """get max height of brep"""
 
-    # create bbox for brep
-    bbox = brep.GetBoundingBox(True)
-    
-    # Get max z component
-    maxHeight = bbox.Max.Z
-    
-    return maxHeight
+class FmBuilding:
 
-def GetMinHeight(brep):
-    """get min height of brep"""
+    def __init__(self,brep,gfHeight,fHeight):
 
-    # create bbox for brep
-    bbox = brep.GetBoundingBox(True)
-    
-    # Get max z component
-    minHeight = bbox.Min.Z
-    
-    return minHeight
+        # properties
+        self.brep = brep
+        self.gfHeight = gfHeight
+        self.fHeight = fHeight
 
-def CreateFloorHeights(brep,gfHeight,fHeight):
-    """create series of numbers based on height of breps and inputed numbers"""
-    
-    # compute max and min height
-    maxHeight = round(GetMaxHeight(brep),2)
-    minHeight = round(GetMinHeight(brep),2)
+        self.maxHeight = None
+        self.minHeight = None
+        self.floorHeights = []
 
-    # get rest count
-    maxCount = int(math.floor(maxHeight/fHeight))
-    
-    # add first floor height to list
-    floorHeights = []
-    
-    counter = minHeight
-    for i in range(0,maxCount):
-        if i == 0:
-            floorHeights.append(minHeight)
-            counter += gfHeight
-            counter = round(counter,1)
-            
-        if i > 0 and i < maxCount:
-            if counter < maxHeight - fHeight:
-                floorHeights.append(counter)
-                counter += fHeight
+    def GetMaxHeight(self):
+        """get max height of brep"""
+
+        # create bbox for brep
+        bbox = self.brep.GetBoundingBox(True)
+        
+        # Get max z component
+        self.maxHeight = round( (bbox.Max.Z) ,2)
+        
+    def GetMinHeight(self):
+        """get min height of brep"""
+
+        # create bbox for brep
+        bbox = brep.GetBoundingBox(True)
+        
+        # Get max z component
+        self.minHeight = round( (bbox.Min.Z) ,2)
+
+    def CreateFloorHeights(self):
+        """create series of numbers based on height of breps and inputed numbers"""
+
+        # get rest count
+        maxCount = int(math.floor(self.maxHeight/self.fHeight))
+        
+        # add first floor height to list
+        self.floorHeights = []
+        
+        counter = self.minHeight
+        for i in range(0,maxCount):
+            if i == 0:
+                self.floorHeights.append(self.minHeight)
+                counter = counter + self.gfHeight
                 counter = round(counter,1)
+                
+            if i > 0 and i < maxCount:
+                if counter < self.maxHeight - self.fHeight:
+                    self.floorHeights.append(counter)
+                    counter += self.fHeight
+                    counter = round(counter,1)
 
-    return floorHeights
 
-def ContourBrep(brep,fHeights):
-    
-    fCurves = []
-    for ht in fHeights:
+    def ContourBrep(self):
+        
+        fCurves = []
+        for ht in self.floorHeights:
 
-        # construct point from heights
-        minPnt = rg.Point3d(0,0,ht)
-        
-        # create plane at Z = ht
-        pln = rg.Plane(minPnt,rg.Vector3d(0,0,1))
-        
-        # get curves and join them
-        crvs = rg.Intersect.Intersection.BrepPlane(brep,pln,0.01)[1]
-        
-        # NEED TO FIX THIS, have to write function that takes in varying sizes of inputs
-        if crvs.Count == 1:
-            fCurves.append(rg.Curve.JoinCurves(crvs)[0])
-        else:
-            for crv in crvs:
-                fCurves.append(crv)
-        
-    return fCurves
+            # construct point from heights
+            minPnt = rg.Point3d(0,0,ht)
+            
+            # create plane at Z = ht
+            pln = rg.Plane(minPnt,rg.Vector3d(0,0,1))
+            
+            # get curves and join them
+            crvs = rg.Intersect.Intersection.BrepPlane(brep,pln,0.01)[1]
+            
+            # NEED TO FIX THIS, have to write function that takes in varying sizes of inputs
+            if crvs.Count == 1:
+                fCurves.append(rg.Curve.JoinCurves(crvs)[0])
+            else:
+                for crv in crvs:
+                    fCurves.append(crv)
+            
+        return fCurves
+
 
 
 a = []
 for brep in Breps:
-    
-    heights = CreateFloorHeights(brep,GroundFloorHeight,FloorHeight)
-    #print(heights)
-    curves = ContourBrep(brep,heights)
-    for crv in curves:
-        
-        a.append(crv)
+
+    fb = FmBuilding(brep,GroundFloorHeight,FloorHeight)
+    fb.GetMaxHeight()
+    fb.GetMinHeight()
+    fb.CreateFloorHeights()
+    curves = fb.ContourBrep()
+    for curve in curves:
+        a.append(curve)
+
+
