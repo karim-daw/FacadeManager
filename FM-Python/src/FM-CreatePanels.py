@@ -76,7 +76,8 @@ class FmBuilding:
 
 
     def ContourBrep(self):
-        
+        """contour brep and outputs curves"""
+
         fCurves = []
         for ht in self.floorHeights:
 
@@ -99,13 +100,20 @@ class FmBuilding:
         return fCurves
     
     def SplitBrep(self):
+        """split brep by a set of curves"""
 
         crvs = self.ContourBrep()
-        print(crvs)
-
         splitBreps = self.brep.Split.Overloads[IEnumerable[rg.Curve], System.Double](crvs,0.01)
 
-        return splitBreps
+        explodeBreps = []
+        for i, splitBrep in enumerate(splitBreps):
+            # Get faces from breps
+            for j, face in enumerate(splitBrep.Faces):          
+                # turn it into brep 
+                dupFace = rg.BrepFace.DuplicateFace(face,False)
+                explodeBreps.append(dupFace)
+
+        return explodeBreps
 
 
 
