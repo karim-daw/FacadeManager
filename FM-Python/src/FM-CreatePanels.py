@@ -12,6 +12,7 @@ ghenv.Component.SubCategory = "2-Build"
 import time
 import Rhino.Geometry as rg
 import math
+import scriptcontext as rs
 
 ghenv.Component.Message = time.strftime("%d/%m/%Y") + "\n" + time.strftime("%H:%M:%S")
 
@@ -108,4 +109,9 @@ for brep in Breps:
     for curve in curves:
         a.append(curve)
 
+Panel = rs.sticky["Fm-Panel"]
+PanelObject = Panel()
+PanelObject.MakeMessage()
 
+print(PanelObject.message)
+print("hello")
