@@ -13,6 +13,8 @@ import time
 import Rhino.Geometry as rg
 import math
 import scriptcontext as rs
+import System
+import System.Collections.Generic.IEnumerable as IEnumerable
 
 ghenv.Component.Message = time.strftime("%d/%m/%Y") + "\n" + time.strftime("%H:%M:%S")
 
@@ -95,10 +97,20 @@ class FmBuilding:
                     fCurves.append(crv)
             
         return fCurves
+    
+    def SplitBrep(self):
+
+        crvs = self.ContourBrep()
+        print(crvs)
+
+        splitBreps = self.brep.Split.Overloads[IEnumerable[rg.Curve], System.Double](crvs,0.01)
+
+        return splitBreps
 
 
 
 a = []
+b = []
 for brep in Breps:
 
     fb = FmBuilding(brep,GroundFloorHeight,FloorHeight)
@@ -108,6 +120,10 @@ for brep in Breps:
     curves = fb.ContourBrep()
     for curve in curves:
         a.append(curve)
+    
+    sBreps = fb.SplitBrep()
+    for sBrep in sBreps:
+        b.append(sBrep)
 
 Panel = rs.sticky["Fm-Panel"]
 PanelObject = Panel()
