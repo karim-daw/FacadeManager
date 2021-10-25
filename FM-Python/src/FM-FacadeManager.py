@@ -39,7 +39,7 @@ class Panel:
 
     def MakeMessage(self):
 
-        self.message = "hello, i am a panel!"
+        self.message = "hello, i am a panel! Hooray!"
 
 
 class Utilities:
@@ -85,4 +85,5 @@ class Utilities:
     
 
 
-rs.sticky["Fm-Panel"] = Panel 
+rs.sticky["Fm-Panel"] = Panel
+rs.sticky["Fm-Utilities"] = Utilities 

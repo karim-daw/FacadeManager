@@ -20,6 +20,16 @@ ghenv.Component.Message = time.strftime("%d/%m/%Y") + "\n" + time.strftime("%H:%
 
 # Your code here
 
+Utilities = rs.sticky["Fm-Utilities"]()
+Panel = rs.sticky["Fm-Panel"]()
+
+print(Utilities.message)
+Panel.MakeMessage()
+
+print(Panel.message)
+print("hello")
+
+
 
 class FmBuilding:
 
@@ -34,28 +44,13 @@ class FmBuilding:
         self.minHeight = None
         self.floorHeights = []
 
-    def GetMaxHeight(self):
-        """get max height of brep"""
-
-        # create bbox for brep
-        bbox = self.brep.GetBoundingBox(True)
-        
-        # Get max z component
-        self.maxHeight = round( (bbox.Max.Z) ,2)
-        
-    def GetMinHeight(self):
-        """get min height of brep"""
-
-        # create bbox for brep
-        bbox = brep.GetBoundingBox(True)
-        
-        # Get max z component
-        self.minHeight = round( (bbox.Min.Z) ,2)
-
     def CreateFloorHeights(self):
         """create series of numbers based on height of breps and inputed numbers"""
 
-        # get rest count
+        # get max and min height
+        self.minHeight = Utilities.GetMinHeight(self.brep)
+        self.maxHeight = Utilities.GetMaxHeight(self.brep)
+
         maxCount = int(math.floor(self.maxHeight/self.fHeight))
         
         # add first floor height to list
@@ -131,8 +126,6 @@ b = []
 for brep in Breps:
 
     fb = FmBuilding(brep,GroundFloorHeight,FloorHeight)
-    fb.GetMaxHeight()
-    fb.GetMinHeight()
     fb.CreateFloorHeights()
     curves = fb.ContourBrep()
     for curve in curves:
@@ -142,9 +135,3 @@ for brep in Breps:
     for sBrep in sBreps:
         b.append(sBrep)
 
-Panel = rs.sticky["Fm-Panel"]
-PanelObject = Panel()
-PanelObject.MakeMessage()
-
-print(PanelObject.message)
-print("hello")
