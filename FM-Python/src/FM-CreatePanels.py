@@ -30,7 +30,6 @@ print(Panel.message)
 print("hello")
 
 
-
 class FmBuilding:
 
     def __init__(self,brep,gfHeight,fHeight):
@@ -72,6 +71,9 @@ class FmBuilding:
 
     def ContourBrep(self):
         """contour brep and outputs curves"""
+
+        # create floor heights
+        self.CreateFloorHeights()
 
         fCurves = []
         for ht in self.floorHeights:
@@ -119,14 +121,13 @@ class FmBuilding:
         pass
     
 
-
-
 a = []
 b = []
 for brep in Breps:
 
     fb = FmBuilding(brep,GroundFloorHeight,FloorHeight)
-    fb.CreateFloorHeights()
+
+
     curves = fb.ContourBrep()
     for curve in curves:
         a.append(curve)
