@@ -41,4 +41,48 @@ class Panel:
 
         self.message = "hello, i am a panel!"
 
+
+class Utilities:
+
+    def __init__(self):
+
+        self.message = "using utitlity class"
+    
+
+    def GetMinHeight(self,brep):
+
+        """get min height of brep"""
+
+        # create bbox for brep
+        bbox = brep.GetBoundingBox(True)
+        
+        # Get max z component
+        minHeight = round( (bbox.Min.Z) ,2)
+
+        return minHeight
+    
+
+    def GetMaxHeight(self,brep):
+
+        """get max height of brep"""
+
+        # create bbox for brep
+        bbox = brep.GetBoundingBox(True)
+        
+        # Get max z component
+        maxHeight = round( (bbox.Max.Z) ,2)
+
+        return maxHeight
+    
+    def ComputeSurfaceTangent(self,surface):
+        pass
+    
+    def ContourBrep(self,brep,stepSizes,direction):
+        pass
+
+    def SplitBrep(self,brep,crvs):
+        pass
+    
+
+
 rs.sticky["Fm-Panel"] = Panel 

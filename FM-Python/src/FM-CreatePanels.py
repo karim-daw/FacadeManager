@@ -114,6 +114,15 @@ class FmBuilding:
                 explodeBreps.append(dupFace)
 
         return explodeBreps
+    
+    def SplitBays(self):
+        """ Split breps (window bays) by a gride size number using the tangent of brep """
+        pass
+    
+    def GroupPanelsByOrientation(self):
+        """ returns a direcionary where the key is the orientation, and the value is a list of panels """
+        pass
+    
 
 
 
