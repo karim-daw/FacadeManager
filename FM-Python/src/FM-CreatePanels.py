@@ -74,7 +74,7 @@ class FmBuilding:
 
     def CreateWindowBays(self,facadeGridSize):
         """ creates surface representation of each facade per floor"""
-
+        print("creating window bays................................................................................................")
         # Create Floor Heights
         self.CreateFloorHeights()
 
@@ -90,6 +90,7 @@ class FmBuilding:
             print(type(sBrep))
             # Compute window curvers
             windowCurves = Utilities.ContourSurface(sBrep,facadeGridSize)
+            print("these are my window curves {0}".format(windowCurves))
             splitSurfaces = Utilities.SplitBrep(sBrep,windowCurves)
             for splitSurface in splitSurfaces:
                 windowPanels.append(splitSurface)

@@ -177,17 +177,18 @@ class Utilities:
 
         # compute Tangent
         tngt = self.ComputeSurfaceTangent(nrml)
+        print("my surface tangent is {0}".format(tngt))
 
         # set domain of surface
         interval_0 = rg.Interval(0.0,1.0)
         surface.SetDomain(0,interval_0)
         surface.SetDomain(1,interval_0)
 
-        print("I set the domain of the surface")
-        print(surface.SetDomain(0,interval_0))
+        #print("I set the domain of the surface")
+        #print(surface.SetDomain(0,interval_0))
 
         # compute first point on surface
-        print("first surface point")
+        #print("first surface point")
         fSurfacePnt = surface.PointAt(0.0,0.0)
         lSurfacePnt = surface.PointAt(0.0,1.0)
         eSurfacePnt = surface.PointAt(1.0,0.0)
@@ -203,7 +204,8 @@ class Utilities:
         # compute list of numbers for range
         surfaceLength = self.ComputeSurfaceLength(surface)
         count = int(math.ceil(surfaceLength/stepSize))
-        #print(count)
+        print("number of counts")
+        print(count)
 
 
         # loop through steps
@@ -211,7 +213,6 @@ class Utilities:
         for i in range(count):
 
             # create tangent move vector
-            print(tngt)
             mVec = tngt * i
             print(fSurfacePnt)
 
@@ -226,7 +227,7 @@ class Utilities:
             print(dupFace)
 
             # get curves and join them
-            crvs = rg.Intersect.Intersection.BrepPlane(dupFace,pln,0.1)[1]
+            crvs = rg.Intersect.Intersection.BrepPlane(dupFace,pln,0.1)
             #crvs = rg.Intersect.Intersection.BrepPlane(dupFace,pln,0.01)
             print(crvs)
             if len(crvs) == 1:
@@ -238,9 +239,10 @@ class Utilities:
         
         return vCurves
 
+
     def SplitBrep(self,brep,curves):
 
-        """split brep by a set of curves"""
+        
         print("Splitting Breps...")
         print(type(brep))
         print(len(curves))
@@ -250,8 +252,12 @@ class Utilities:
             castBrep = rg.BrepFace.DuplicateFace(brep,False)
             print("converted to brep")
             print(type(castBrep))
-            #splitBreps = castBrep.Split.Overloads[IEnumerable[rg.Curve], System.Double](curves,0.01)
-            splitBreps = castBrep.Split.Overloads[IEnumerable[rg.Curve], System.Double](curves,0.01)
+            #print(curves[1])
+            print(curves)
+            if curves[1] == None:
+                splitBreps = castBrep.Split.Overloads[IEnumerable[rg.Curve], System.Double](curves,0.01)
+            else:
+                splitBreps = castBrep.Split.Overloads[IEnumerable[rg.Curve], System.Double](curves[1],0.01)
         else:
             print("hi")
             print(type(brep))
@@ -267,6 +273,8 @@ class Utilities:
                 #print(type(dupFace))
 
         return explodeBreps
+
+
 
 
 rs.sticky["Fm-Panel"] = Panel
