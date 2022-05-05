@@ -88,8 +88,6 @@ class FmBuilding:
         for i, sBrep in enumerate(splitBreps):
             print("helloooooo i am a type of...")
             print(type(sBrep))
-            c.append(sBrep)
-            print(c)
             # Compute window curvers
             windowCurves = Utilities.ContourSurface(sBrep,facadeGridSize)
             splitSurfaces = Utilities.SplitBrep(sBrep,windowCurves)
