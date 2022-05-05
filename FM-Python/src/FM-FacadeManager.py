@@ -26,6 +26,7 @@ import Rhino
 import Rhino.Geometry as rg
 import scriptcontext as rs
 import System
+import math
 import System.Collections.Generic.IEnumerable as IEnumerable
 
 ghenv.Component.Message = time.strftime("%d/%m/%Y") + "\n" + time.strftime("%H:%M:%S")
@@ -84,13 +85,37 @@ class Utilities:
 
         return maxHeight
     
+    def ComputeSurfaceLength(self,surface):
+
+        if type(surface) == rg.Brep:
+            brepSurfaceList = surface.Surfaces
+            surface = brepSurfaceList[0]
+            firstPoint = surface.PointAt(0.0,0.0)
+            secondPoint = surface.PointAt(1.0,0.0)
+            distance = firstPoint.DistanceTo(secondPoint)
+            print("Surface span is {0}".format(distance))
+        else:
+            firstPoint = surface.PointAt(0.0,0.0)
+            secondPoint = surface.PointAt(1.0,0.0)
+            distance = firstPoint.DistanceTo(secondPoint)
+            print("Surface span is {0}".format(distance))          
+
+        return distance
+
+
     def ComputeSurfaceNormal(self,surface):
 
         """ computes surface normal and returns unit vector"""
 
-        normal = surface.NormalAt(0.5,0.5)
-        normal.Unitize
-
+        if type(surface) == rg.Brep:
+            brepSurfaceList = surface.Surfaces
+            surface = brepSurfaceList[0]
+            normal = surface.NormalAt(0.5,0.5)
+            normal.Unitize
+        else:
+            normal = surface.NormalAt(0.5,0.5)
+            normal.Unitize
+        
         return normal
     
     def ComputeSurfaceTangent(self,normalVector):
@@ -116,6 +141,8 @@ class Utilities:
 
         """ contour brep along upwards with a given set of step sizes and return list of curves"""
         
+        print("ContourBrep will contour an object of type {0}".format(type(brep)))  
+
         cCurves = []
         for step in stepSizes:
 
@@ -134,13 +161,16 @@ class Utilities:
             else:
                 for crv in crvs:
                     cCurves.append(crv)
-            
+        print(cCurves)
         return cCurves
 
     
-    def ContourSurface(self,surface,stepSizes,direction):
+    def ContourSurface(self,surface,stepSize):
 
         """ contour a single surfac by given step sizes and direction and returns a list of curves"""
+
+        print("ContourSurface will contour an object of type {0}".format(type(surface)))   
+
 
         # compute Normal
         nrml = self.ComputeSurfaceNormal(surface)
@@ -148,35 +178,84 @@ class Utilities:
         # compute Tangent
         tngt = self.ComputeSurfaceTangent(nrml)
 
+        # set domain of surface
+        interval_0 = rg.Interval(0.0,1.0)
+        surface.SetDomain(0,interval_0)
+        surface.SetDomain(1,interval_0)
+
+        print("I set the domain of the surface")
+        print(surface.SetDomain(0,interval_0))
+
         # compute first point on surface
-        fSurfacePnt = surface.PointAt(0.5,0.5)
+        print("first surface point")
+        fSurfacePnt = surface.PointAt(0.0,0.0)
+        lSurfacePnt = surface.PointAt(0.0,1.0)
+        eSurfacePnt = surface.PointAt(1.0,0.0)
+        dSurfacePnt = surface.PointAt(1.0,1.0)
+        print(fSurfacePnt)
+        print(lSurfacePnt)
+        print(eSurfacePnt)
+        print(dSurfacePnt)
+
+        print("testing if point is sitting on surface")
+        print(surface.IsPointOnFace(0.0,0.0))
+
+        # compute list of numbers for range
+        surfaceLength = self.ComputeSurfaceLength(surface)
+        count = int(math.ceil(surfaceLength/stepSize))
+        #print(count)
+
 
         # loop through steps
         vCurves = []
-        for i, step in enumerate(stepSizes):
+        for i in range(count):
 
             # create tangent move vector
+            print(tngt)
             mVec = tngt * i
+            print(fSurfacePnt)
 
-            # contruct point from stepSizes
+            # contruct point from stepSizes and plane
             pnt = fSurfacePnt + mVec
-
-            # contruct plane
+            print("points")
+            print(pnt)
             pln = rg.Plane(pnt,tngt)
+            print(pln)
+
+            dupFace = rg.BrepFace.DuplicateFace(surface,False)
+            print(dupFace)
 
             # get curves and join them
-            crv = rg.Intersect.Intersection.BrepPlane(surface,pln,0.01)[1]
+            crvs = rg.Intersect.Intersection.BrepPlane(dupFace,pln,0.1)[1]
+            #crvs = rg.Intersect.Intersection.BrepPlane(dupFace,pln,0.01)
+            print(crvs)
+            if len(crvs) == 1:
+                vCurves.append(rg.Curve.JoinCurves(crvs)[0])
+            else:
+                for crv in crvs:
+                    vCurves.append(crv)
 
-            # NEED TO FIX THIS, not sure if we need to join them
-            vCurves.append(crv)
-            
+        
         return vCurves
 
     def SplitBrep(self,brep,curves):
 
         """split brep by a set of curves"""
+        print("Splitting Breps...")
+        print(type(brep))
+        print(len(curves))
+        print(type(curves))
 
-        splitBreps = self.brep.Split.Overloads[IEnumerable[rg.Curve], System.Double](curves,0.01)
+        if type(brep) != rg.Brep:
+            castBrep = rg.BrepFace.DuplicateFace(brep,False)
+            print("converted to brep")
+            print(type(castBrep))
+            #splitBreps = castBrep.Split.Overloads[IEnumerable[rg.Curve], System.Double](curves,0.01)
+            splitBreps = castBrep.Split.Overloads[IEnumerable[rg.Curve], System.Double](curves,0.01)
+        else:
+            print("hi")
+            print(type(brep))
+            splitBreps = brep.Split.Overloads[IEnumerable[rg.Curve], System.Double](curves,0.01)
 
         explodeBreps = []
         for i, splitBrep in enumerate(splitBreps):
@@ -184,7 +263,8 @@ class Utilities:
             for j, face in enumerate(splitBrep.Faces):          
                 # turn it into brep 
                 dupFace = rg.BrepFace.DuplicateFace(face,False)
-                explodeBreps.append(dupFace)
+                explodeBreps.append(face)
+                #print(type(dupFace))
 
         return explodeBreps
 
